@@ -1,0 +1,19 @@
+﻿@page
+@model DrunkDoodle.Server.Pages.ArtistModel
+@{
+    ViewData["Title"] = "Artist";
+}
+
+<h2>Artist</h2>
+<div class="container">
+    <p>
+        <a href="#" class="btn btn-dark" id="btnCreateRoom">Create room</a> | 
+        <a class="alert alert-dark" style="display: none" id="roomId"></a>
+    </p>
+    <canvas style="display: none;" id="artistCanvas" height="300" width="300"></canvas>
+</div>
+
+@section Scripts {
+    <script src="~/lib/signalr/dist/browser/signalr.js"></script>
+    <script src="~/js/artist.js"></script>
+}

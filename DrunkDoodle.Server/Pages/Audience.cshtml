@@ -1,0 +1,15 @@
+﻿@page
+@model DrunkDoodle.Server.Pages.AudienceModel
+@{
+    ViewData["Title"] = "Audience";
+}
+
+<h2>Audience</h2>
+<div class="container">
+    <canvas id="audienceCanvas" height="300" width="300"></canvas>
+</div>
+
+@section Scripts {
+    <script src="~/lib/signalr/dist/browser/signalr.js"></script>
+    <script src="~/js/audience.js"></script>
+}
