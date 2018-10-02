@@ -2,24 +2,93 @@
 
 var connection = new signalR.HubConnectionBuilder().withUrl("/gameHub").build();
 
-connection.on("roomCreated", function (roomId) {
-    var labelRoom = $("#roomId");
-    labelRoom.text("Room " + roomId);
-    labelRoom.show();
-    labelRoom.attr("href", "/Audience?roomId=" + roomId);
-    $("#artistCanvas").show();
-});
-
 connection.start().catch(function (err) {
     return console.error(err.toString());
 });
 
-document.getElementById("btnCreateRoom").addEventListener("click", function (event) {
-    connection.invoke("CreateRoom").catch(function (err) {
+// PLAYING GAME
+$("#btnStartRound").click(function () {
+    connection.invoke("StartRound").catch(function (err) {
         return console.error(err.toString());
     });
     event.preventDefault();
 });
+
+connection.on("NewRound", function (word, time) {
+    $("#artistCanvas").show();
+    $("#word").show();
+    $("#countdown").show();
+    CountDownTimer(time, 'countdown');
+    console.log(time);
+    $("#word").text(word);
+});
+
+connection.on("EndRound", function () {
+    alert("ROUND HAS ENDED!");
+});
+
+function CountDownTimer(dt, id) {
+    //var end = new Date(dt);
+    var end = dt;
+
+    var _second = 1000;
+    var timer;
+
+    function showRemaining() {
+        var now = new Date();
+        var distance = end - now;
+        if (distance < 0) {
+
+            clearInterval(timer);
+            document.getElementById(id).innerHTML = 'EXPIRED!';
+
+            return;
+        }
+       
+        var seconds = Math.floor(distance / _second);
+        
+        document.getElementById(id).innerHTML = seconds;
+    }
+
+    timer = setInterval(showRemaining, 1000);
+}
+
+// CREATE ROOM
+connection.on("roomCreated", function (roomId) {
+    var labelRoom = $("#roomId");
+    labelRoom.text("Room " + roomId);
+    labelRoom.show();
+    labelRoom.attr("href", "/Audience?roomId=" + roomId);  
+    $("#btnStartRound").show();
+    $("#btnCreateRoom").hide();
+    $("#teams").hide();
+});
+
+$("#btnCreateRoom").click(function (event) {
+    connection.invoke("CreateRoom", getTeams()).catch(function (err) {
+        return console.error(err.toString());
+    });
+    event.preventDefault();
+});
+
+function getTeams() {
+    var inputs = $("#teams > .row > .col > input");
+    var teams = [
+        {
+            'teamNo': 1,
+            'members': [inputs[0].value, inputs[2].value]
+        },
+        {
+            'teamNo': 2,
+            'members': [inputs[4].value, inputs[6].value]
+        },
+        {
+            'teamNo': 3,
+            'members': [inputs[8].value, inputs[10].value]
+        }];
+    return teams;
+}
+
 
 // DRAWING
 var clickX = new Array();

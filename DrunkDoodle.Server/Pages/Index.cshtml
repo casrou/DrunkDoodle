@@ -1,10 +1,85 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Artist";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<h2>Artist</h2>
+<div class="container">
+    <div class="d-flex justify-content-between" style="width: 300px;">
+        <div class="float">
+            <b id="word">Cykel</b>
+        </div>
+        <div></div>
+        <div class="float-right">
+            <b id="countdown">14</b>
+        </div>
+    </div>
+    <form>
+        <div id="teams" class="form-group">
+            <label>Teams</label>
+            <div class="row">
+                <div class="col">
+                    <input type="text" class="form-control" placeholder="Name">
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control" placeholder="Team number">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <input type="text" class="form-control" placeholder="Name">
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control" placeholder="Team number">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <input type="text" class="form-control" placeholder="Name">
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control" placeholder="Team number">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <input type="text" class="form-control" placeholder="Name">
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control" placeholder="Team number">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <input type="text" class="form-control" placeholder="Name">
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control" placeholder="Team number">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <input type="text" class="form-control" placeholder="Name">
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control" placeholder="Team number">
+                </div>
+            </div>
+        </div>
+        <a href="#" class="btn btn-dark" id="btnCreateRoom">Create room</a>
+    </form>
+    <canvas id="artistCanvas" height="300" width="300"></canvas>
+    <br /><br />
+    <p>
+        <a class="alert alert-dark" id="roomId"></a>
+    </p>
+    <p>
+        <a class="btn btn-success" id="btnStartRound">Start game</a>
+    </p>
 </div>
+
+@section Scripts {
+    <script src="~/lib/signalr/dist/browser/signalr.js"></script>
+    <script src="~/js/artist.js"></script>
+}

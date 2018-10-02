@@ -9,10 +9,12 @@ namespace DrunkDoodle.Server.Hubs
     public class GameHub : Hub
     {
         // GAME
+        private static List<string> _words = new List<string>() { "Cykel", "Abe", "Mikroovn", "Paraply", "Øl" };
         private static List<Room> _rooms = new List<Room>();
         private static Random _random = new Random();
 
-        public async Task CreateRoom()
+        // ARTIST
+        public async Task CreateRoom(List<Team> teams)
         {
             Room temproom = _rooms.FirstOrDefault(r => r.artist == Context.ConnectionId);
             if (temproom == null)
@@ -23,17 +25,35 @@ namespace DrunkDoodle.Server.Hubs
                     roomId = roomId,
                     artist = Context.ConnectionId,
                     audience = new List<string>(),
-                    drawPoints = new List<DrawPoint>()
+                    drawPoints = new List<DrawPoint>(),
+                    teams = teams
                 };
                 _rooms.Add(room);
                 await Clients.Caller.SendAsync("RoomCreated", roomId);
-            } else
+            }
+            else
             {
                 await Clients.Caller.SendAsync("RoomCreated", temproom.roomId);
-            }            
+            }
         }
 
-        // ARTIST
+        public async Task StartRound()
+        {
+            DateTime thirtySeconds = DateTime.Now.AddSeconds(30).ToUniversalTime();
+            long countdown = (long)(thirtySeconds - new DateTime(1970, 1, 1)).TotalMilliseconds;
+            await Clients.Caller.SendAsync("NewRound",
+                _words[_random.Next(_words.Count)],
+                countdown);
+            await Task.Delay(30000).ContinueWith(t => EndRound());
+        }
+
+        public async Task EndRound()
+        {
+            Room room = _rooms.FirstOrDefault(r => r.artist == Context.ConnectionId);
+            await Clients.Caller.SendAsync("EndRound");
+            await Clients.Clients(room.audience).SendAsync("EndRound");
+        }
+
         public async Task IsDrawing(double x, double y, bool dragging)
         {
             Room room = _rooms.FirstOrDefault(r => r.artist == Context.ConnectionId);
@@ -68,6 +88,13 @@ namespace DrunkDoodle.Server.Hubs
         public List<DrawPoint> drawPoints { get; set; }
         public string artist { get; set; }
         public List<string> audience { get; set; }
+        public List<Team> teams { get; set; }
+    }
+
+    public class Team
+    {
+        public int teamNo { get; set; }
+        public List<string> members { get; set; }
     }
 
     internal class DrawPoint
