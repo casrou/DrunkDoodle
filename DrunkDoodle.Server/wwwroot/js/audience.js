@@ -39,6 +39,17 @@ connection.on("UpdateDrawing", function (x, y, dragging) {
     redraw();
 });
 
+connection.on("ClearCanvas", function () {
+    clearCanvas();
+});
+
+function clearCanvas() {
+    context.clearRect(0, 0, context.canvas.width, context.canvas.height); // Clears the canvas
+    clickX = new Array();
+    clickY = new Array();
+    clickDrag = new Array();    
+}
+
 connection.start()
     .catch(function (err) {
         return console.error(err.toString());

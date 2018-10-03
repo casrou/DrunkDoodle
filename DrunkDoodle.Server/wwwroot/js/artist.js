@@ -8,49 +8,58 @@ connection.start().catch(function (err) {
 
 // PLAYING GAME
 $("#btnStartRound").click(function () {
+    startNewRound();
+    event.preventDefault();
+    $("#btnStartRound").hide();
+    $("#roomId").hide();
+});
+
+function startNewRound() {
     connection.invoke("StartRound").catch(function (err) {
         return console.error(err.toString());
     });
-    event.preventDefault();
-});
+}
 
-connection.on("NewRound", function (word, time) {
+function endRound() {
+    connection.invoke("EndRound").catch(function (err) {
+        return console.error(err.toString());
+    });
+}
+
+connection.on("NewRound", function (word) {
     $("#artistCanvas").show();
     $("#word").show();
     $("#countdown").show();
-    CountDownTimer(time, 'countdown');
-    console.log(time);
+    ProgressCountdown(5, 'countdown').then(() => endRound());
     $("#word").text(word);
 });
 
-connection.on("EndRound", function () {
-    alert("ROUND HAS ENDED!");
+connection.on("PrepareRound", function prepareRound(drawer) {
+    alert("Time's up!\nNow drawing: " + drawer);
+    $("#countdown").text(30);
+    connection.invoke("ClearCanvas").catch(function (err) {
+        return console.error(err.toString());
+    });
+    startNewRound();
 });
 
-function CountDownTimer(dt, id) {
-    //var end = new Date(dt);
-    var end = dt;
+connection.on("ClearCanvas", function () {
+    clearCanvas();
+});
 
-    var _second = 1000;
-    var timer;
+function ProgressCountdown(timeleft, /*bar,*/ text) {
+    return new Promise((resolve, reject) => {
+        var countdownTimer = setInterval(() => {
+            timeleft--;
+            
+            document.getElementById(text).textContent = timeleft;
 
-    function showRemaining() {
-        var now = new Date();
-        var distance = end - now;
-        if (distance < 0) {
-
-            clearInterval(timer);
-            document.getElementById(id).innerHTML = 'EXPIRED!';
-
-            return;
-        }
-       
-        var seconds = Math.floor(distance / _second);
-        
-        document.getElementById(id).innerHTML = seconds;
-    }
-
-    timer = setInterval(showRemaining, 1000);
+            if (timeleft <= 0) {
+                clearInterval(countdownTimer);
+                resolve(true);
+            }
+        }, 1000);
+    });
 }
 
 // CREATE ROOM
@@ -103,6 +112,13 @@ function addClick(x, y, dragging) {
     connection.invoke("IsDrawing", x, y, dragging === undefined ? false : true).catch(function (err) {
         return console.error(err.toString());
     });
+}
+
+function clearCanvas() {
+    context.clearRect(0, 0, context.canvas.width, context.canvas.height); // Clears the canvas
+    clickX = new Array();
+    clickY = new Array();
+    clickDrag = new Array();
 }
 
 var context = document.getElementById('artistCanvas').getContext("2d");

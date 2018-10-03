@@ -39,19 +39,32 @@ namespace DrunkDoodle.Server.Hubs
 
         public async Task StartRound()
         {
-            DateTime thirtySeconds = DateTime.Now.AddSeconds(30).ToUniversalTime();
-            long countdown = (long)(thirtySeconds - new DateTime(1970, 1, 1)).TotalMilliseconds;
-            await Clients.Caller.SendAsync("NewRound",
-                _words[_random.Next(_words.Count)],
-                countdown);
-            await Task.Delay(30000).ContinueWith(t => EndRound());
+            Room room = _rooms.FirstOrDefault(r => r.artist == Context.ConnectionId);
+            await Clients.Caller.SendAsync("NewRound", _words[_random.Next(_words.Count)]);
+            await Clients.Clients(room.audience).SendAsync("NewRound");
+            //DateTime thirtySeconds = DateTime.Now.AddSeconds(30).ToUniversalTime();
+            //long countdown = (long)(thirtySeconds - new DateTime(1970, 1, 1)).TotalMilliseconds;
+            //await Clients.Caller.SendAsync("NewRound",
+            //    _words[_random.Next(_words.Count)],
+            //    countdown);
+            //await Task.Delay(30000).ContinueWith(t => EndRound());
         }
 
         public async Task EndRound()
         {
             Room room = _rooms.FirstOrDefault(r => r.artist == Context.ConnectionId);
-            await Clients.Caller.SendAsync("EndRound");
+            if (room == null) return;
+            await Clients.Caller.SendAsync("PrepareRound", "Casper_Server");
             await Clients.Clients(room.audience).SendAsync("EndRound");
+        }
+
+        public async Task ClearCanvas()
+        {
+            Room room = _rooms.FirstOrDefault(r => r.artist == Context.ConnectionId);
+            if (room == null) return;
+            room.drawPoints.Clear();
+            await Clients.Caller.SendAsync("ClearCanvas");
+            await Clients.Clients(room.audience).SendAsync("ClearCanvas");
         }
 
         public async Task IsDrawing(double x, double y, bool dragging)
