@@ -14,7 +14,7 @@ namespace DrunkDoodle.Server.Hubs
         private static Random _random = new Random();
 
         // ARTIST
-        public async Task CreateRoom(List<Team> teams)
+        public async Task CreateRoom(List<Player> players)
         {
             Room temproom = _rooms.FirstOrDefault(r => r.artist == Context.ConnectionId);
             if (temproom == null)
@@ -26,7 +26,7 @@ namespace DrunkDoodle.Server.Hubs
                     artist = Context.ConnectionId,
                     audience = new List<string>(),
                     drawPoints = new List<DrawPoint>(),
-                    teams = teams
+                    players = orderPlayers(players)
                 };
                 _rooms.Add(room);
                 await Clients.Caller.SendAsync("RoomCreated", roomId);
@@ -37,24 +37,42 @@ namespace DrunkDoodle.Server.Hubs
             }
         }
 
+        private Queue<Player> orderPlayers(List<Player> players)
+        {
+            List<int> teams = players.Select(p => p.team).Distinct().ToList()
+                .OrderBy(a => Guid.NewGuid()).ToList();
+            Queue<Player> orderedPlayers = new Queue<Player>();
+            while(players.Count > 0)
+            {
+                foreach (int team in teams)
+                {
+                    IEnumerable<Player> playersInTeam = players.Where(pt => pt.team == team);
+                    if(playersInTeam.Count() > 0)
+                    {
+                        Player p = playersInTeam.ElementAt(_random.Next(playersInTeam.Count()));
+                        orderedPlayers.Enqueue(p);
+                        players.Remove(p);
+                    }                
+                }
+            }
+            return orderedPlayers;
+        }
+
         public async Task StartRound()
         {
             Room room = _rooms.FirstOrDefault(r => r.artist == Context.ConnectionId);
-            await Clients.Caller.SendAsync("NewRound", _words[_random.Next(_words.Count)]);
-            await Clients.Clients(room.audience).SendAsync("NewRound");
-            //DateTime thirtySeconds = DateTime.Now.AddSeconds(30).ToUniversalTime();
-            //long countdown = (long)(thirtySeconds - new DateTime(1970, 1, 1)).TotalMilliseconds;
-            //await Clients.Caller.SendAsync("NewRound",
-            //    _words[_random.Next(_words.Count)],
-            //    countdown);
-            //await Task.Delay(30000).ContinueWith(t => EndRound());
+            string word = _words[_random.Next(_words.Count)];
+            await Clients.Caller.SendAsync("NewRound", word);
+            await Clients.Clients(room.audience).SendAsync("NewRound", word);
         }
 
         public async Task EndRound()
         {
             Room room = _rooms.FirstOrDefault(r => r.artist == Context.ConnectionId);
             if (room == null) return;
-            await Clients.Caller.SendAsync("PrepareRound", "Casper_Server");
+            Player nextDrawer = room.players.Dequeue();
+            room.players.Enqueue(nextDrawer);
+            await Clients.Caller.SendAsync("PrepareRound", nextDrawer.name);
             await Clients.Clients(room.audience).SendAsync("EndRound");
         }
 
@@ -101,13 +119,14 @@ namespace DrunkDoodle.Server.Hubs
         public List<DrawPoint> drawPoints { get; set; }
         public string artist { get; set; }
         public List<string> audience { get; set; }
-        public List<Team> teams { get; set; }
+        public Queue<Player> players { get; set; }
+        public int roundNo { get; set; } = 1;
     }
 
-    public class Team
+    public class Player
     {
-        public int teamNo { get; set; }
-        public List<string> members { get; set; }
+        public int team { get; set; }
+        public string name { get; set; }
     }
 
     internal class DrawPoint

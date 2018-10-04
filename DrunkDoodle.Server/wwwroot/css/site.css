@@ -59,6 +59,6 @@ canvas {
     border: 2px solid black;
 }
 
-#artistCanvas, #word, #countdown, #roomId, #btnStartRound {
+#artistCanvas, #word, #countdown, #roomId, #btnStartRound, #divNowDrawing {
     display: none;
 }

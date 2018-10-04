@@ -6,10 +6,20 @@
 
 <h2>Audience</h2>
 <div class="container">
+    <div class="d-flex justify-content-between" style="width: 300px;">
+        <div class="float">
+            <b id="word"></b>
+        </div>
+        <div></div>
+        <div class="float-right">
+            <b id="countdown"></b>
+        </div>
+    </div>
     <canvas id="audienceCanvas" height="300" width="300"></canvas>
 </div>
 
 @section Scripts {
     <script src="~/lib/signalr/dist/browser/signalr.js"></script>
     <script src="~/js/audience.js"></script>
+    <script src="~/js/both.js"></script>
 }
