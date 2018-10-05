@@ -4,73 +4,27 @@
     ViewData["Title"] = "Artist";
 }
 
-<h2>Artist</h2>
+@*<h2>Artist</h2>*@
 <div class="container">
-    <form>
-        <div id="teams" class="form-group">
-            <label>Teams</label>
-            <div class="row">
+    <div id="divCreateRoom">
+        <h4>Players</h4>
+        <form id="teams">
+            <div class="form-row">
                 <div class="col">
                     <input type="text" class="form-control" placeholder="Name">
                 </div>
                 <div class="col">
-                    <input type="text" class="form-control" placeholder="Team number">
+                    <input type="text" class="form-control" placeholder="Team">
                 </div>
             </div>
-            <div class="row">
-                <div class="col">
-                    <input type="text" class="form-control" placeholder="Name">
-                </div>
-                <div class="col">
-                    <input type="text" class="form-control" placeholder="Team number">
-                </div>
+            <div class="form-row d-flex justify-content-center">
+                <a id="btnAddPlayerRow" class="btn btn-secondary"><i class="fas fa-plus-circle"></i></a>
             </div>
-            <div class="row">
-                <div class="col">
-                    <input type="text" class="form-control" placeholder="Name">
-                </div>
-                <div class="col">
-                    <input type="text" class="form-control" placeholder="Team number">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <input type="text" class="form-control" placeholder="Name">
-                </div>
-                <div class="col">
-                    <input type="text" class="form-control" placeholder="Team number">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <input type="text" class="form-control" placeholder="Name">
-                </div>
-                <div class="col">
-                    <input type="text" class="form-control" placeholder="Team number">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <input type="text" class="form-control" placeholder="Name">
-                </div>
-                <div class="col">
-                    <input type="text" class="form-control" placeholder="Team number">
-                </div>
-            </div>
-        </div>
-        <a href="#" class="btn btn-dark" id="btnCreateRoom">Create room</a>
-    </form>
-    <div class="d-flex justify-content-between" style="width: 300px;">
-        <div class="float">
-            <b id="word"></b>
-        </div>
-        <div></div>
-        <div class="float-right">
-            <b id="countdown"></b>
-        </div>
+            <button type="submit" href="#" class="btn btn-primary" id="btnCreateRoom">Create room</button>
+        </form>
+        <div id="alertNoPlayers" class="alert alert-warning">You can't start a game with no players!</div>
     </div>
-    <canvas id="artistCanvas" height="300" width="300"></canvas>
-    <div>
+    <div id="divPrepareGame">
         <p>
             <a class="btn btn-dark" id="roomId"></a>
         </p>
@@ -78,12 +32,25 @@
             <a class="btn btn-success" id="btnStartRound">Start game</a>
         </p>
     </div>
-    <div id="divNowDrawing">
-        <p>Now drawing: <span id="spanArtist"></span></p>
-        <p>
-            <a class="btn btn-info" id="btnReady">Ready!</a>
-        </p>
-    </div>
+    <div id="divGame">
+        <div class="d-flex justify-content-between" style="width: 300px;">
+            <div class="float">
+                <b id="word"></b>
+            </div>
+            <div></div>
+            <div class="float-right">
+                <b id="countdown"></b>
+            </div>
+        </div>
+        <canvas id="artistCanvas" height="300" width="300"></canvas>
+
+        <div id="divNowDrawing">
+            <p>Now drawing: <span id="spanArtist"></span></p>
+            <p>
+                <a class="btn btn-info" id="btnReady">Ready!</a>
+            </p>
+        </div>
+    </div>    
 </div>
 
 @section Scripts {

@@ -14,12 +14,14 @@ $("#btnStartRound").click(function () {
 });
 
 function startNewRound() {
+    canDraw = true;
     connection.invoke("StartRound").catch(function (err) {
         return console.error(err.toString());
     });
 }
 
 function endRound() {
+    canDraw = false;
     connection.invoke("EndRound").catch(function (err) {
         return console.error(err.toString());
     });
@@ -50,28 +52,47 @@ connection.on("roomCreated", function (roomId) {
 });
 
 $("#btnCreateRoom").click(function (event) {
-    connection.invoke("CreateRoom", getPlayers()).catch(function (err) {
-        return console.error(err.toString());
-    });
+    var players = getPlayers;
+    if (players.length > 0) {
+        connection.invoke("CreateRoom", players).catch(function (err) {
+            return console.error(err.toString());
+        });
+    } else {
+        $("#alertNoPlayers").show();
+    }    
     event.preventDefault();
 });
 
+$("#btnAddPlayerRow").click(function () {
+    $("#teams > div:nth-last-child(3)").after(
+        `<div class="form-row">
+            <div class="col">
+                <input type="text" class="form-control" placeholder="Name">
+            </div>
+                <div class="col">
+                    <input type="text" class="form-control" placeholder="Team">
+            </div>
+        </div>`
+    );
+});
+
 function getPlayers() {
-    var inputs = $("#teams > .row");
+    var inputs = $("#teams > .form-row");
     var players = [];
     //for (var i = 0; i < inputs.length; i++) {
     //    var player = {};
     //    player.name = inputs[i].firstElementChild.firstElementChild.value;
     //    player.team = inputs[i].lastElementChild.firstElementChild.value;
-    //    if (player.name !== "" && player.team !== "")
+    //    if (player.name && player.team) //https://stackoverflow.com/a/5515349
     //        players.push(player);
     //}
-    players.push({ 'name': 'casper', 'team': '1' });
-    players.push({ 'name': 'ida', 'team': '1' });
-    players.push({ 'name': 'anna', 'team': '2' });
-    players.push({ 'name': 'marcus', 'team': '2' });
-    players.push({ 'name': 'jeppe', 'team': '3' });
-    players.push({ 'name': 'peter', 'team': '3' });
+    players.push({ 'name': 'Casper', 'team': '1' });
+    players.push({ 'name': 'Ida', 'team': '1' });
+    players.push({ 'name': 'Anna', 'team': '2' });
+    players.push({ 'name': 'Marcus', 'team': '2' });
+    players.push({ 'name': 'Jeppe', 'team': '3' });
+    players.push({ 'name': 'Peter', 'team': '3' });
+    //console.log(players);
     return players;
 }
 
@@ -80,35 +101,62 @@ var clickX = new Array();
 var clickY = new Array();
 var clickDrag = new Array();
 var paint;
+var canDraw = false;
 
 function addClick(x, y, dragging) {
-    clickX.push(x);
-    clickY.push(y);
-    clickDrag.push(dragging);
-    connection.invoke("IsDrawing", x, y, dragging === undefined ? false : true).catch(function (err) {
-        return console.error(err.toString());
-    });
+    if (canDraw) {
+        clickX.push(x);
+        clickY.push(y);
+        clickDrag.push(dragging);
+        connection.invoke("IsDrawing", x, y, dragging === undefined ? false : true).catch(function (err) {
+            return console.error(err.toString());
+        });
+    }    
 }
 
-var context = document.getElementById('artistCanvas').getContext("2d");
+var canvas = document.getElementById('artistCanvas');
+var context = canvas.getContext("2d");
 
-$('#artistCanvas').mousedown(function (e) {
-    var mouseX = e.pageX - this.offsetLeft;
-    var mouseY = e.pageY - this.offsetTop;
+canvas.addEventListener("mousedown", startDraw, false);
+canvas.addEventListener("mouseup", cancelDraw, false);
+canvas.addEventListener("mouseleave", cancelDraw, false);
+canvas.addEventListener("mousemove", moveDraw, false);
 
+canvas.addEventListener("touchstart", startDraw, false);
+canvas.addEventListener("touchend", cancelDraw, false);
+canvas.addEventListener("touchcancel", cancelDraw, false);
+canvas.addEventListener("touchmove", moveDraw, false);
+
+function startDraw(e) {
     paint = true;
-    addClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop);
+    var coordinate = getCoordinates(e);
+    addClick(coordinate.x, coordinate.y);
     redraw();
-});
-$('#artistCanvas').mousemove(function (e) {
+    e.preventDefault(); 
+}
+
+function moveDraw(e) {
     if (paint) {
-        addClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop, true);
+        var coordinate = getCoordinates(e);
+        addClick(coordinate.x, coordinate.y, true);
         redraw();
     }
-});
-$('#artistCanvas').mouseup(function (e) {
+    e.preventDefault();
+}
+
+function getCoordinates(e) {
+    var coordinate = {};
+    if (e.type === MouseEvent) {
+        coordinate.x = e.clientX - canvas.offsetLeft;
+        coordinate.y = e.clientY - canvas.offsetTop;
+    } else {
+        coordinate.x = e.changedTouches[0].clientX - canvas.offsetLeft;
+        coordinate.y = e.changedTouches[0].clientY - canvas.offsetTop;
+    }
+    return coordinate;
+}
+
+function cancelDraw(e) {
     paint = false;
-});
-$('#artistCanvas').mouseleave(function (e) {
-    paint = false;
-});
+    e.preventDefault();
+}

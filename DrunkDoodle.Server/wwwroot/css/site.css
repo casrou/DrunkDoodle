@@ -41,9 +41,14 @@ html {
   min-height: 100%;
 }
 
+html, body {
+    background-color: #333333;
+}
+
 body {
   /* Margin bottom by footer height */
-  margin-bottom: 60px;
+  margin: 60px 0 60px 0;
+  color: white;
 }
 .footer {
   position: absolute;
@@ -59,6 +64,14 @@ canvas {
     border: 2px solid black;
 }
 
-#artistCanvas, #word, #countdown, #roomId, #btnStartRound, #divNowDrawing {
+#artistCanvas, #word, #countdown, #roomId, #btnStartRound, #divNowDrawing, #alertNoPlayers {
     display: none;
+}
+
+#teams > .form-row {
+    padding-bottom: 10px;
+}
+
+#alertNoPlayers {
+    margin-top: 10px;
 }

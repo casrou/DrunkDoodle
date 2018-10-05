@@ -1,6 +1,6 @@
 ﻿"use strict";
 
-const COUNTDOWN_TIME = 5;
+const COUNTDOWN_TIME = 10;
 
 connection.on("NewRound", function (word) {
     $("#artistCanvas").show();
@@ -29,13 +29,12 @@ function ProgressCountdown(timeleft, text) {
     });
 }
 
-
 function clearCanvas() {
+    $("#countdown").text(COUNTDOWN_TIME);
     context.clearRect(0, 0, context.canvas.width, context.canvas.height); // Clears the canvas
     clickX = new Array();
     clickY = new Array();
     clickDrag = new Array();
-    $("#countdown").text("hej");
 }
 
 function redraw() {
