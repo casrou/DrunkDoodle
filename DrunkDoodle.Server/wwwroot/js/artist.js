@@ -6,11 +6,16 @@ connection.start().catch(function (err) {
     return console.error(err.toString());
 });
 
+$(function () {
+    $("#divSplash").show();
+    $("#divSplash").fadeOut(() => $("#divCreateRoom").show());
+});
+
 // PLAYING GAME
 $("#btnStartRound").click(function () {
     endRound();
-    $("#btnStartRound").hide();
-    $("#roomId").hide();
+    $("#divPrepareGame").hide();
+    $("#divGame").show();
 });
 
 function startNewRound() {
@@ -41,18 +46,17 @@ $("#btnReady").click(function () {
 });
 
 // CREATE ROOM
+
 connection.on("roomCreated", function (roomId) {
     var labelRoom = $("#roomId");
     labelRoom.text("Room " + roomId);
-    labelRoom.show();
     labelRoom.attr("href", "/Audience?roomId=" + roomId);  
-    $("#btnStartRound").show();
-    $("#btnCreateRoom").hide();
-    $("#teams").hide();
+    $("#divPrepareGame").show();
+    $("#divCreateRoom").hide();
 });
 
 $("#btnCreateRoom").click(function (event) {
-    var players = getPlayers;
+    var players = getPlayers();
     if (players.length > 0) {
         connection.invoke("CreateRoom", players).catch(function (err) {
             return console.error(err.toString());
@@ -128,6 +132,7 @@ canvas.addEventListener("touchcancel", cancelDraw, false);
 canvas.addEventListener("touchmove", moveDraw, false);
 
 function startDraw(e) {
+    console.log(e);
     paint = true;
     var coordinate = getCoordinates(e);
     addClick(coordinate.x, coordinate.y);
@@ -146,12 +151,12 @@ function moveDraw(e) {
 
 function getCoordinates(e) {
     var coordinate = {};
-    if (e.type === MouseEvent) {
+    if (e.changedTouches) {
+        coordinate.x = e.changedTouches[0].clientX - canvas.offsetLeft;
+        coordinate.y = e.changedTouches[0].clientY - canvas.offsetTop;        
+    } else {
         coordinate.x = e.clientX - canvas.offsetLeft;
         coordinate.y = e.clientY - canvas.offsetTop;
-    } else {
-        coordinate.x = e.changedTouches[0].clientX - canvas.offsetLeft;
-        coordinate.y = e.changedTouches[0].clientY - canvas.offsetTop;
     }
     return coordinate;
 }

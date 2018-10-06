@@ -10,6 +10,11 @@ function addClick(x, y, dragging) {
     clickDrag.push(dragging);
 }
 
+$(function () {
+    $("#divSplash").show();
+    $("#divSplash").fadeOut(() => $("#divGame").show());
+});
+
 var context = document.getElementById('audienceCanvas').getContext("2d");
 
 var connection = new signalR.HubConnectionBuilder().withUrl("/gameHub").build();
@@ -36,4 +41,10 @@ connection.start()
 
 function endRound() {
     // do nothing
+}
+
+function initialize() {
+    alert("test");
+    $("#divSplash").show();
+    $("#divSplash").fadeOut(3000, () => $("#divGame").show());
 }

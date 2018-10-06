@@ -40,7 +40,7 @@ function clearCanvas() {
 function redraw() {
     context.clearRect(0, 0, context.canvas.width, context.canvas.height); // Clears the canvas
 
-    context.strokeStyle = "#df4b26";
+    context.strokeStyle = "#ddb995";
     context.lineJoin = "round";
     context.lineWidth = 5;
 

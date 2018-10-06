@@ -4,8 +4,11 @@
     ViewData["Title"] = "Artist";
 }
 
-@*<h2>Artist</h2>*@
-<div class="container">
+<div class="container" id="game">
+    <div id="divSplash">
+        <h1 style="text-align: center" class="mx-auto d-block">DrunkDoodle</h1>
+        <img id="imgSplash" class="mx-auto d-block" src="/images/splash.png" />
+    </div>
     <div id="divCreateRoom">
         <h4>Players</h4>
         <form id="teams">
@@ -25,6 +28,7 @@
         <div id="alertNoPlayers" class="alert alert-warning">You can't start a game with no players!</div>
     </div>
     <div id="divPrepareGame">
+        <h4>Prepare game</h4>
         <p>
             <a class="btn btn-dark" id="roomId"></a>
         </p>
@@ -33,24 +37,29 @@
         </p>
     </div>
     <div id="divGame">
-        <div class="d-flex justify-content-between" style="width: 300px;">
-            <div class="float">
-                <b id="word"></b>
-            </div>
-            <div></div>
-            <div class="float-right">
-                <b id="countdown"></b>
+        <div class="d-flex justify-content-center">
+            <div class="d-flex justify-content-between" style="width: 300px;">
+                <div>
+                    <b id="word">Word</b>
+                </div>
+                <div></div>
+                <div>
+                    <b id="countdown"><i class="far fa-clock"></i></b>
+                </div>
             </div>
         </div>
-        <canvas id="artistCanvas" height="300" width="300"></canvas>
-
-        <div id="divNowDrawing">
-            <p>Now drawing: <span id="spanArtist"></span></p>
-            <p>
-                <a class="btn btn-info" id="btnReady">Ready!</a>
-            </p>
+        <div class="d-flex justify-content-center">
+            <canvas id="artistCanvas" height="300" width="300"></canvas>
         </div>
-    </div>    
+        <div class="d-flex justify-content-center">
+            <div id="divNowDrawing" style="width: 300px;">
+                <p>Now drawing: <span id="spanArtist"></span></p>
+                <p>
+                    <a class="btn btn-info" id="btnReady">Ready!</a>
+                </p>
+            </div>
+        </div>            
+    </div>
 </div>
 
 @section Scripts {

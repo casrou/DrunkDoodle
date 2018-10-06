@@ -4,18 +4,23 @@
     ViewData["Title"] = "Audience";
 }
 
-@*<h2>Audience</h2>*@
-<div class="container">
-    <div class="d-flex justify-content-between" style="width: 300px;">
-        <div class="float">
-            <b id="word"></b>
+<div class="container" id="game">
+    <div id="divSplash">
+        <h1 style="text-align: center" class="mx-auto d-block">DrunkDoodle</h1>
+        <img id="imgSplash" class="mx-auto d-block" src="/images/splash.png" />
+    </div>
+    <div id="divGame">
+        <div class="d-flex justify-content-center">
+            <div class="d-flex justify-content-end" style="width: 300px;">
+                <div>
+                    <b id="countdown"><i class="far fa-clock"></i></b>
+                </div>
+            </div>
         </div>
-        <div></div>
-        <div class="float-right">
-            <b id="countdown"></b>
+        <div class="d-flex justify-content-center">
+            <canvas id="audienceCanvas" height="300" width="300"></canvas>
         </div>
     </div>
-    <canvas id="audienceCanvas" height="300" width="300"></canvas>
 </div>
 
 @section Scripts {
