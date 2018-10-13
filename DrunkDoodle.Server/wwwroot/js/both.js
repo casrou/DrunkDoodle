@@ -1,6 +1,7 @@
 ﻿"use strict";
 
 const COUNTDOWN_TIME = 10;
+var countdownTimer;
 
 connection.on("NewRound", function (word) {
     $("#artistCanvas").show();
@@ -16,7 +17,7 @@ connection.on("ClearCanvas", function () {
 
 function ProgressCountdown(timeleft, text) {
     return new Promise((resolve, reject) => {
-        var countdownTimer = setInterval(() => {
+        countdownTimer = setInterval(() => {
             timeleft--;
 
             document.getElementById(text).textContent = timeleft;
@@ -26,6 +27,7 @@ function ProgressCountdown(timeleft, text) {
                 resolve(true);
             }
         }, 1000);
+        console.log(countdownTimer);
     });
 }
 
@@ -40,7 +42,7 @@ function clearCanvas() {
 function redraw() {
     context.clearRect(0, 0, context.canvas.width, context.canvas.height); // Clears the canvas
 
-    context.strokeStyle = "#ddb995";
+    context.strokeStyle = "#17a2b8";
     context.lineJoin = "round";
     context.lineWidth = 5;
 

@@ -8,7 +8,7 @@ connection.start().catch(function (err) {
 
 $(function () {
     $("#divSplash").show();
-    $("#divSplash").fadeOut(() => $("#divCreateRoom").show());
+    $("#divSplash").delay(2000).fadeOut(() => $("#divCreateRoom").show());
 });
 
 // PLAYING GAME
@@ -19,20 +19,25 @@ $("#btnStartRound").click(function () {
 });
 
 function startNewRound() {
+    console.log("startNewRound");
     canDraw = true;
+    $("#btnGuessed").show();
     connection.invoke("StartRound").catch(function (err) {
         return console.error(err.toString());
     });
 }
 
 function endRound() {
+    console.log("endRound");
+    clearInterval(countdownTimer);
     canDraw = false;
+    $("#btnGuessed").hide();      
     connection.invoke("EndRound").catch(function (err) {
         return console.error(err.toString());
     });
 }
 
-connection.on("PrepareRound", function (drawer) {
+connection.on("PrepareRound", function (drawer) {    
     $("#divNowDrawing").show();
     $("#spanArtist").text(drawer);    
 });
@@ -43,6 +48,13 @@ $("#btnReady").click(function () {
         return console.error(err.toString());
     });
     startNewRound();
+});
+
+$("#btnGuessed").click(function(){
+    connection.invoke("WordGuessed").catch(function (err) {
+        return console.error(err.toString());
+    });
+    endRound();
 });
 
 // CREATE ROOM
