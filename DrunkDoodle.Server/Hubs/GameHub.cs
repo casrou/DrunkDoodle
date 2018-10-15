@@ -21,21 +21,28 @@ namespace DrunkDoodle.Server.Hubs
 
         // GAME
         // private static List<string> _words = new List<string>() { "Cykel", "Abe", "Mikroovn", "Paraply", "Øl" };
-        private static List<string> _words;
+        private static List<Word> _words;
 
-        private List<string> InitializeWords()
+        private List<Word> InitializeWords()
         {
             string webRootPath = _hostingEnvironment.WebRootPath;
-            string json = File.ReadAllText(webRootPath + "/words/english.json");
-            List<string> words = JsonConvert.DeserializeObject<List<string>>(json);
+            string json = File.ReadAllText(webRootPath + "/words/words.json");
+            List<Word> words = JsonConvert.DeserializeObject<List<Word>>(json);
             return words;
+            // return new List<Word>() {
+            //     new Word() {content = "abe", language = "danish"},
+            //     new Word() {content = "monkey", language = "english"}
+            // };
         }
 
         private static List<Room> _rooms = new List<Room>();
         private static Random _random = new Random();
 
         // ARTIST
-        public async Task CreateRoom(List<Player> players)
+        public async Task CreateRoom(List<Player> players,
+            int drinkAmount,
+            string drinkType,
+            string wordLanguage)
         {
             Room temproom = _rooms.FirstOrDefault(r => r.artistDevice == Context.ConnectionId);
             if (temproom == null)
@@ -47,7 +54,10 @@ namespace DrunkDoodle.Server.Hubs
                     artistDevice = Context.ConnectionId,
                     audienceDevices = new List<string>(),
                     drawPoints = new List<DrawPoint>(),
-                    players = orderPlayers(players)
+                    players = orderPlayers(players),
+                    drinkAmount = drinkAmount,
+                    drinkType = drinkType,
+                    wordLanguage = wordLanguage                  
                 };
                 _rooms.Add(room);
                 await Clients.Caller.SendAsync("RoomCreated", roomId);
@@ -82,9 +92,10 @@ namespace DrunkDoodle.Server.Hubs
         public async Task StartRound()
         {
             Room room = _rooms.FirstOrDefault(r => r.artistDevice == Context.ConnectionId);
-            string word = _words[_random.Next(_words.Count)];
-            await Clients.Caller.SendAsync("NewRound", word);
-            await Clients.Clients(room.audienceDevices).SendAsync("NewRound", word);
+            List<Word> wordsInLanguage = _words.Where(w => w.language == room.wordLanguage.ToLower()).ToList();
+            Word word = wordsInLanguage[_random.Next(wordsInLanguage.Count)];
+            await Clients.Caller.SendAsync("NewRound", word.content);
+            await Clients.Clients(room.audienceDevices).SendAsync("NewRound", word.content);
         }
 
         public async Task EndRound()
@@ -104,11 +115,25 @@ namespace DrunkDoodle.Server.Hubs
             return nextDrawer;
         }
 
-        public void WordGuessed()
+        public async Task WordGuessed()
         {
             Room room = _rooms.FirstOrDefault(r => r.artistDevice == Context.ConnectionId);
-            if (room == null) return;   
-            room.nowDrawing.score++;         
+            if (room == null) return;
+            Player nowDrawing = room.nowDrawing;   
+            nowDrawing.score++;         
+            await Clients.All.SendAsync("NowDrinking",
+                room.players.Where(p => p.team != nowDrawing.team),
+                room.drinkAmount,
+                room.drinkType); 
+        }
+
+        public async Task WordNotGuessed(){
+            Room room = _rooms.FirstOrDefault(r => r.artistDevice == Context.ConnectionId);
+            if (room == null) return;       
+            await Clients.All.SendAsync("NowDrinking",
+                room.players.Where(p => p.team == room.nowDrawing.team),
+                room.drinkAmount,
+                room.drinkType);
         }
 
         public async Task ClearCanvas()
@@ -148,6 +173,12 @@ namespace DrunkDoodle.Server.Hubs
         }
     }
 
+    internal class Word
+    {
+        public string content { get; set; }
+        public string language { get; set; }
+    }
+
     internal class Room
     {
         public int roomId { get; set; }
@@ -157,6 +188,9 @@ namespace DrunkDoodle.Server.Hubs
         public Queue<Player> players { get; set; }
         public Player nowDrawing { get; set; }
         public int roundNo { get; set; } = 1;
+        public int drinkAmount { get; set; }
+        public string drinkType { get; set; }
+        public string wordLanguage { get; set; }
     }
 
     public class Player

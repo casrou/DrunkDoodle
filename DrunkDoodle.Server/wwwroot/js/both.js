@@ -4,10 +4,14 @@ const COUNTDOWN_TIME = 10;
 var countdownTimer;
 
 connection.on("NewRound", function (word) {
+    $("#drinkModal").modal('hide');
     $("#artistCanvas").show();
     $("#word").show();
     $("#countdown").show();    
-    ProgressCountdown(COUNTDOWN_TIME, 'countdown').then(() => endRound());
+    ProgressCountdown(COUNTDOWN_TIME, 'countdown').then(() => {
+        notGuessed();
+        endRound();
+    });
     $("#word").text(word);
 });
 
@@ -27,7 +31,6 @@ function ProgressCountdown(timeleft, text) {
                 resolve(true);
             }
         }, 1000);
-        console.log(countdownTimer);
     });
 }
 

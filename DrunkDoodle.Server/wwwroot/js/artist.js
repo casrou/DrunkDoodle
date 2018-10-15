@@ -7,8 +7,9 @@ connection.start().catch(function (err) {
 });
 
 $(function () {
-    $("#divSplash").show();
-    $("#divSplash").delay(2000).fadeOut(() => $("#divCreateRoom").show());
+    // $("#divSplash").show();
+    // $("#divSplash").delay(2000).fadeOut(() => $("#divCreateRoom").show());
+    $("#divCreateRoom").show();
 });
 
 // PLAYING GAME
@@ -19,7 +20,6 @@ $("#btnStartRound").click(function () {
 });
 
 function startNewRound() {
-    console.log("startNewRound");
     canDraw = true;
     $("#btnGuessed").show();
     connection.invoke("StartRound").catch(function (err) {
@@ -28,7 +28,6 @@ function startNewRound() {
 }
 
 function endRound() {
-    console.log("endRound");
     clearInterval(countdownTimer);
     canDraw = false;
     $("#btnGuessed").hide();      
@@ -57,6 +56,23 @@ $("#btnGuessed").click(function(){
     endRound();
 });
 
+function notGuessed(){
+    connection.invoke("WordNotGuessed").catch(function (err) {
+        return console.error(err.toString());
+    });
+}
+
+connection.on("NowDrinking", function (players, amount, type) {  
+    var drinking = players.map(p => p.name).join(", ");
+    // var drinkHtml = "<h1>" + drinking + "</br>" + "drink " + amount + "</h1>";
+    $("#drinkModalWho").text(drinking);
+    if(amount === 1){
+        type = type.slice(0, -1);
+    }
+    $('#drinkModalAmount').text(amount + " " + type);
+    $("#drinkModal").modal('show');
+});
+
 // CREATE ROOM
 
 connection.on("roomCreated", function (roomId) {
@@ -69,8 +85,12 @@ connection.on("roomCreated", function (roomId) {
 
 $("#btnCreateRoom").click(function (event) {
     var players = getPlayers();
+    var drinkAmount = $("#penaltyAmount").val();
+    var drinkType = $("#penaltyType").val();
+    var wordLanguage = $("#wordLanguage").val();
+    console.log(drinkAmount + drinkType);
     if (players.length > 0) {
-        connection.invoke("CreateRoom", players).catch(function (err) {
+        connection.invoke("CreateRoom", players, drinkAmount, drinkType, wordLanguage).catch(function (err) {
             return console.error(err.toString());
         });
     } else {
@@ -80,13 +100,13 @@ $("#btnCreateRoom").click(function (event) {
 });
 
 $("#btnAddPlayerRow").click(function () {
-    $("#teams > div:nth-last-child(3)").after(
+    $("#teams").append(
         `<div class="form-row">
             <div class="col">
-                <input type="text" class="form-control" placeholder="Name">
+                <input type="text" class="form-control" placeholder="">
             </div>
                 <div class="col">
-                    <input type="text" class="form-control" placeholder="Team">
+                    <input type="text" class="form-control" placeholder="">
             </div>
         </div>`
     );
@@ -95,19 +115,19 @@ $("#btnAddPlayerRow").click(function () {
 function getPlayers() {
     var inputs = $("#teams > .form-row");
     var players = [];
-    //for (var i = 0; i < inputs.length; i++) {
-    //    var player = {};
-    //    player.name = inputs[i].firstElementChild.firstElementChild.value;
-    //    player.team = inputs[i].lastElementChild.firstElementChild.value;
-    //    if (player.name && player.team) //https://stackoverflow.com/a/5515349
-    //        players.push(player);
-    //}
-    players.push({ 'name': 'Casper', 'team': '1' });
-    players.push({ 'name': 'Ida', 'team': '1' });
-    players.push({ 'name': 'Anna', 'team': '2' });
-    players.push({ 'name': 'Marcus', 'team': '2' });
-    players.push({ 'name': 'Jeppe', 'team': '3' });
-    players.push({ 'name': 'Peter', 'team': '3' });
+    for (var i = 0; i < inputs.length; i++) {
+       var player = {};
+       player.name = inputs[i].firstElementChild.lastElementChild.value;
+       player.team = inputs[i].lastElementChild.lastElementChild.value;
+       if (player.name && player.team) //https://stackoverflow.com/a/5515349
+           players.push(player);
+    }
+    // players.push({ 'name': 'Casper', 'team': '1' });
+    // players.push({ 'name': 'Ida', 'team': '1' });
+    // players.push({ 'name': 'Anna', 'team': '2' });
+    // players.push({ 'name': 'Marcus', 'team': '2' });
+    // players.push({ 'name': 'Jeppe', 'team': '3' });
+    // players.push({ 'name': 'Peter', 'team': '3' });
     //console.log(players);
     return players;
 }
@@ -144,7 +164,6 @@ canvas.addEventListener("touchcancel", cancelDraw, false);
 canvas.addEventListener("touchmove", moveDraw, false);
 
 function startDraw(e) {
-    console.log(e);
     paint = true;
     var coordinate = getCoordinates(e);
     addClick(coordinate.x, coordinate.y);

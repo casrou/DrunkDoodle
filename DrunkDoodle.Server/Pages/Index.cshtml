@@ -5,23 +5,54 @@
 }
 
 <div class="container" id="game">
-    <div id="divSplash" style="display: flex; align-items:center;">
+    <div id="divSplash">
         <!-- <h1 style="text-align: center" class="mx-auto d-block">DrunkDoodle</h1> -->
         <img id="imgSplash" class="img-fluid" src="/images/splash.png" />
     </div>
-    <div id="divCreateRoom">
-        <h4>Players</h4>
-        <form id="teams">
-            <div class="form-row">
-                <div class="col">
-                    <input type="text" class="form-control" placeholder="Name">
+    <div id="divCreateRoom">        
+        <form>
+            <h4>Players</h4>
+            <div id="teams">
+                <div class="form-row">
+                    <div class="col">
+                        <label>Name</label>
+                        <input type="text" class="form-control" placeholder="John">
+                    </div>
+                    <div class="col">
+                        <label>Team</label>
+                        <input type="text" class="form-control" placeholder="1">
+                    </div>
                 </div>
-                <div class="col">
-                    <input type="text" class="form-control" placeholder="Team">
-                </div>
-            </div>
+            </div>            
             <div class="form-row d-flex justify-content-center">
                 <a id="btnAddPlayerRow" class="btn btn-secondary"><i class="fas fa-plus-circle"></i></a>
+            </div>          
+            <h4>Drinking penalty</h4>
+            <div class="form-row">      
+                <div class="col">
+                    <select class="form-control" id="penaltyAmount">
+                        <option>1</option>
+                        <option selected>2</option>
+                        <option>3</option>
+                        <option>4</option>
+                        <option>5</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <select class="form-control" id="penaltyType">
+                        <option selected>sips</option>
+                        <option>shots</option>
+                    </select>
+                </div>                
+            </div>
+            <h4>Language</h4>
+            <div class="form-row">      
+                <div class="col">
+                    <select class="form-control" id="wordLanguage">
+                        <option selected>English</option>
+                        <option>Danish</option>
+                    </select>
+                </div>
             </div>
             <button type="submit" href="#" class="btn btn-primary" id="btnCreateRoom">Create room</button>
         </form>
@@ -58,7 +89,8 @@
         </div>   
         <div class="d-flex justify-content-center">
             <div id="divNowDrawing" style="width: 300px;">
-                <p>Now drawing: <span id="spanArtist"></span></p>
+                <small class="text-muted">Now drawing:</small><br>
+                    <h3 id="spanArtist"></h3>
                 <p>
                     <a class="btn btn-info" id="btnReady">Ready!</a>
                 </p>

@@ -11,8 +11,9 @@ function addClick(x, y, dragging) {
 }
 
 $(function () {
-    $("#divSplash").show();
-    $("#divSplash").fadeOut(() => $("#divGame").show());
+    // $("#divSplash").show();
+    // $("#divSplash").delay(2000).fadeOut(() => $("#divGame").show());
+    $("#divGame").show();
 });
 
 var context = document.getElementById('audienceCanvas').getContext("2d");
@@ -40,6 +41,23 @@ connection.start()
     });
 
 function endRound() {
+    clearInterval(countdownTimer);
+}
+
+connection.on("NowDrinking", function (players, amount, type) {  
+    clearInterval(countdownTimer);
+    $('.modal-footer').hide();
+    var drinking = players.map(p => p.name).join(", ");
+    // var drinkHtml = "<h1>" + drinking + "</br>" + "drink " + amount + "</h1>";
+    $("#drinkModalWho").text(drinking);
+    if(amount === 1){
+        type = type.slice(0, -1);
+    }
+    $('#drinkModalAmount').text(amount + " " + type);    
+    $("#drinkModal").modal('show');
+});
+
+function notGuessed(){
     // do nothing
 }
 
