@@ -16,6 +16,7 @@ canvas {
     border: 2px solid white;
     border-radius: 0.25rem;
     margin-bottom: 20px;
+    background-color: rgba(0, 0, 0, 0.2);
 }
 
 #divNowDrawing, #divSplash, #divCreateRoom, #divPrepareGame, #divGame, #btnGuessed, #alertNoPlayers {
