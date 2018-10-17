@@ -41,3 +41,10 @@ canvas {
 #btnCreateRoom {
     margin-top: 20px;
 }
+
+#fullscreen {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    display: none;
+}
