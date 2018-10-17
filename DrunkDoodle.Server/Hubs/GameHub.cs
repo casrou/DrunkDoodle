@@ -120,17 +120,25 @@ namespace DrunkDoodle.Server.Hubs
             Room room = _rooms.FirstOrDefault(r => r.artistDevice == Context.ConnectionId);
             if (room == null) return;
             Player nowDrawing = room.nowDrawing;   
-            nowDrawing.score++;         
-            await Clients.All.SendAsync("NowDrinking",
+            nowDrawing.score++;    
+            await Clients.Caller.SendAsync("NowDrinking",
                 room.players.Where(p => p.team != nowDrawing.team),
                 room.drinkAmount,
-                room.drinkType); 
+                room.drinkType);
+            await Clients.Clients(room.audienceDevices).SendAsync("NowDrinking",
+                room.players.Where(p => p.team != nowDrawing.team),
+                room.drinkAmount,
+                room.drinkType);
         }
 
         public async Task WordNotGuessed(){
             Room room = _rooms.FirstOrDefault(r => r.artistDevice == Context.ConnectionId);
-            if (room == null) return;       
-            await Clients.All.SendAsync("NowDrinking",
+            if (room == null) return;     
+            await Clients.Caller.SendAsync("NowDrinking",
+                room.players.Where(p => p.team == room.nowDrawing.team),
+                room.drinkAmount,
+                room.drinkType);
+            await Clients.Clients(room.audienceDevices).SendAsync("NowDrinking",
                 room.players.Where(p => p.team == room.nowDrawing.team),
                 room.drinkAmount,
                 room.drinkType);
