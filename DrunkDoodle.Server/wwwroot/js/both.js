@@ -12,6 +12,7 @@ connection.on("NewRound", function (word) {
         notGuessed();
         endRound();
     });
+    $("#audienceWord").hide();
     $("#word").text(word);
 });
 

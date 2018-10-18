@@ -25,6 +25,11 @@ connection.on("UpdateDrawing", function (x, y, dragging) {
     redraw();
 });
 
+connection.on("EndRound", function (word) {
+    $("#audienceWord").text(word);
+    $("#audienceWord").show();
+});
+
 connection.start()
     .catch(function (err) {
         return console.error(err.toString());
@@ -46,7 +51,6 @@ function endRound() {
 
 connection.on("NowDrinking", function (players, amount, type) {  
     clearInterval(countdownTimer);
-    $('.modal-footer').hide();
     var drinking = players.map(p => p.name).join(", ");
     // var drinkHtml = "<h1>" + drinking + "</br>" + "drink " + amount + "</h1>";
     $("#drinkModalWho").text(drinking);

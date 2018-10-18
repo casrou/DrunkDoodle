@@ -49,3 +49,8 @@ canvas {
     right: 5px;
     display: none;
 }
+
+#btnGuessed {
+    padding: 25px;
+    font-size: 1.5rem;
+}

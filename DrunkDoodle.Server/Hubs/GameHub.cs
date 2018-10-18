@@ -57,7 +57,8 @@ namespace DrunkDoodle.Server.Hubs
                     players = orderPlayers(players),
                     drinkAmount = drinkAmount,
                     drinkType = drinkType,
-                    wordLanguage = wordLanguage                  
+                    wordLanguage = wordLanguage,
+                    word = new Word() { content = "", language = ""}
                 };
                 _rooms.Add(room);
                 await Clients.Caller.SendAsync("RoomCreated", roomId);
@@ -94,6 +95,7 @@ namespace DrunkDoodle.Server.Hubs
             Room room = _rooms.FirstOrDefault(r => r.artistDevice == Context.ConnectionId);
             List<Word> wordsInLanguage = _words.Where(w => w.language == room.wordLanguage.ToLower()).ToList();
             Word word = wordsInLanguage[_random.Next(wordsInLanguage.Count)];
+            room.word = word;
             await Clients.Caller.SendAsync("NewRound", word.content);
             await Clients.Clients(room.audienceDevices).SendAsync("NewRound", word.content);
         }
@@ -105,7 +107,7 @@ namespace DrunkDoodle.Server.Hubs
             Player nextDrawer = getNextDrawer(room);                     
             await Clients.Caller.SendAsync("PrepareRound", nextDrawer.name);
             room.nowDrawing = nextDrawer;
-            await Clients.Clients(room.audienceDevices).SendAsync("EndRound");
+            await Clients.Clients(room.audienceDevices).SendAsync("EndRound", room.word.content);
         }
 
         private Player getNextDrawer(Room room)
@@ -199,6 +201,7 @@ namespace DrunkDoodle.Server.Hubs
         public int drinkAmount { get; set; }
         public string drinkType { get; set; }
         public string wordLanguage { get; set; }
+        public Word word { get; internal set; }
     }
 
     public class Player
