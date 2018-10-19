@@ -31,7 +31,7 @@ canvas {
     margin-top: 10px;
 }
 
-#drinkModal {
+#drinkModal, #scoreModal {
     color: #333333;
 }
 
@@ -45,12 +45,16 @@ canvas {
 
 #fullscreen {
     position: absolute;
-    top: 5px;
-    right: 5px;
+    top: 10px;
+    right: 10px;
     display: none;
 }
 
 #btnGuessed {
     padding: 25px;
     font-size: 1.5rem;
+}
+
+#scoreModal th {
+    border-top: none;
 }

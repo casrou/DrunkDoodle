@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DrunkDoodle.Server.Hubs
@@ -18,9 +19,7 @@ namespace DrunkDoodle.Server.Hubs
             _hostingEnvironment = hostingEnvironment;
             _words = InitializeWords();
         }
-
-        // GAME
-        // private static List<string> _words = new List<string>() { "Cykel", "Abe", "Mikroovn", "Paraply", "Øl" };
+        
         private static List<Word> _words;
 
         private List<Word> InitializeWords()
@@ -29,16 +28,11 @@ namespace DrunkDoodle.Server.Hubs
             string json = File.ReadAllText(webRootPath + "/words/words.json");
             List<Word> words = JsonConvert.DeserializeObject<List<Word>>(json);
             return words;
-            // return new List<Word>() {
-            //     new Word() {content = "abe", language = "danish"},
-            //     new Word() {content = "monkey", language = "english"}
-            // };
         }
 
         private static List<Room> _rooms = new List<Room>();
         private static Random _random = new Random();
-
-        // ARTIST
+        
         public async Task CreateRoom(List<Player> players,
             int drinkAmount,
             string drinkType,
@@ -164,8 +158,7 @@ namespace DrunkDoodle.Server.Hubs
                 await Clients.Clients(room.audienceDevices).SendAsync("UpdateDrawing", x, y, dragging);
             }
         }
-
-        // AUDIENCE
+        
         public async Task JoinAudience(int roomId)
         {
             Room room = _rooms.FirstOrDefault(r => r.roomId == roomId);
@@ -180,6 +173,32 @@ namespace DrunkDoodle.Server.Hubs
                         drawPoint.dragging);
                 }
             }
+        }
+
+        public async Task ShowScoreboard()
+        {
+            Room room = _rooms.FirstOrDefault(r => r.audienceDevices.Contains(Context.ConnectionId));
+            if (room == null) return;
+            await Clients.Caller.SendAsync("ShowScoreboard", getTeams(room.players));
+        }
+
+        private List<Team> getTeams(Queue<Player> players)
+        {
+            List<Team> teams = new List<Team>();
+            foreach (Player player in players)
+            {
+                Team team;
+                if(!teams.Exists(t => t.teamNo == player.team)){
+                    team = new Team() { teamNo = player.team };
+                    teams.Add(team);
+                } else
+                {
+                    team = teams.First(t => t.teamNo == player.team);
+                }                    
+                team.players.Add(player);
+                team.teamScore += player.score;                
+            }
+            return teams.OrderByDescending(t => t.teamScore).ToList();
         }
     }
 
@@ -209,6 +228,13 @@ namespace DrunkDoodle.Server.Hubs
         public int team { get; set; }
         public string name { get; set; }
         public int score { get; set; }
+    }
+
+    public class Team
+    {
+        public int teamNo { get; set; }
+        public List<Player> players { get; set; } = new List<Player>();
+        public int teamScore { get; set; }
     }
 
     internal class DrawPoint

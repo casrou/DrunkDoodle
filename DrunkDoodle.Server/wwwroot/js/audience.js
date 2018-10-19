@@ -70,3 +70,34 @@ function initialize() {
     $("#divSplash").show();
     $("#divSplash").fadeOut(3000, () => $("#divGame").show());
 }
+
+$("#btnScoreboard").click(function () {
+    connection.invoke("ShowScoreboard").catch(function (err) {
+        return console.error(err.toString());
+    });
+});
+
+
+connection.on("ShowScoreboard", function (teams) {
+    $("#scoreModalTable > tbody > tr").remove();
+    // teams sorted by score (highest first)
+    for (var i = 0; i < teams.length; i++) {
+        var tr = document.createElement("tr");
+        var placement = document.createElement("th");
+        var players = document.createElement("td");
+        var score = document.createElement("td");
+        
+        placement.textContent = i + 1;
+        players.textContent = teams[i].players.map(p => p.name).join(', ');
+        score.textContent = teams[i].teamScore;
+
+        tr.appendChild(placement);
+        tr.appendChild(players);
+        tr.appendChild(score);
+
+        console.log(tr);
+        $("#scoreModalTable > tbody").append(tr);
+    }    
+
+    $("#scoreModal").modal('show');
+});
