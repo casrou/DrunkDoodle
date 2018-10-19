@@ -33,10 +33,7 @@ namespace DrunkDoodle.Server.Hubs
         private static List<Room> _rooms = new List<Room>();
         private static Random _random = new Random();
         
-        public async Task CreateRoom(List<Player> players,
-            int drinkAmount,
-            string drinkType,
-            string wordLanguage)
+        public async Task CreateRoom(List<Player> players, int drinkAmount, string drinkType, string wordLanguage)
         {
             Room temproom = _rooms.FirstOrDefault(r => r.artistDevice == Context.ConnectionId);
             if (temproom == null)
@@ -92,13 +89,20 @@ namespace DrunkDoodle.Server.Hubs
             room.word = word;
             await Clients.Caller.SendAsync("NewRound", word.content);
             await Clients.Clients(room.audienceDevices).SendAsync("NewRound", word.content);
+            await Task.Delay(5000).ContinueWith(async _ =>
+            {
+                Player nextDrawer = getNextDrawer(room);
+                await Clients.Caller.SendAsync("PrepareRound", nextDrawer.name);
+                room.nowDrawing = nextDrawer;
+                await Clients.Clients(room.audienceDevices).SendAsync("EndRound", word.content);
+            });
         }
 
         public async Task EndRound()
         {
             Room room = _rooms.FirstOrDefault(r => r.artistDevice == Context.ConnectionId);
             if (room == null) return;
-            Player nextDrawer = getNextDrawer(room);                     
+            Player nextDrawer = getNextDrawer(room);
             await Clients.Caller.SendAsync("PrepareRound", nextDrawer.name);
             room.nowDrawing = nextDrawer;
             await Clients.Clients(room.audienceDevices).SendAsync("EndRound", room.word.content);
