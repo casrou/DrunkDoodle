@@ -13,14 +13,17 @@ namespace DrunkDoodle.Server.Hubs
     public class GameHub : Hub
     {
         private readonly IHostingEnvironment _hostingEnvironment;
+        private IEnumerable<Word> _words;
+        private static List<Room> _rooms;
+        private static Random _random;
 
         public GameHub(IHostingEnvironment hostingEnvironment)
         {
             _hostingEnvironment = hostingEnvironment;
             _words = InitializeWords();
-        }
-        
-        private static List<Word> _words;
+            _rooms = new List<Room>();
+            _random = new Random();
+        }      
 
         private List<Word> InitializeWords()
         {
@@ -29,14 +32,8 @@ namespace DrunkDoodle.Server.Hubs
             List<Word> words = JsonConvert.DeserializeObject<List<Word>>(json);
             return words;
         }
-
-        private static List<Room> _rooms = new List<Room>();
-        private static Random _random = new Random();
         
-        public async Task CreateRoom(List<Player> players,
-            int drinkAmount,
-            string drinkType,
-            string wordLanguage)
+        public async Task CreateRoom(List<Player> players, RoomRules roomRules)
         {
             Room temproom = _rooms.FirstOrDefault(r => r.artistDevice == Context.ConnectionId);
             if (temproom == null)
@@ -46,13 +43,8 @@ namespace DrunkDoodle.Server.Hubs
                 {
                     roomId = roomId,
                     artistDevice = Context.ConnectionId,
-                    audienceDevices = new List<string>(),
-                    drawPoints = new List<DrawPoint>(),
-                    players = orderPlayers(players),
-                    drinkAmount = drinkAmount,
-                    drinkType = drinkType,
-                    wordLanguage = wordLanguage,
-                    word = new Word() { content = "", language = ""}
+                    players = shufflePlayers(players),
+                    roomRules = roomRules
                 };
                 _rooms.Add(room);
                 await Clients.Caller.SendAsync("RoomCreated", roomId);
@@ -63,7 +55,7 @@ namespace DrunkDoodle.Server.Hubs
             }
         }
 
-        private Queue<Player> orderPlayers(List<Player> players)
+        private Queue<Player> shufflePlayers(List<Player> players)
         {
             List<int> teams = players.Select(p => p.team).Distinct().ToList()
                 .OrderBy(a => Guid.NewGuid()).ToList();
@@ -89,7 +81,7 @@ namespace DrunkDoodle.Server.Hubs
             Room room = _rooms.FirstOrDefault(r => r.artistDevice == Context.ConnectionId);
             List<Word> wordsInLanguage = _words.Where(w => w.language == room.wordLanguage.ToLower()).ToList();
             Word word = wordsInLanguage[_random.Next(wordsInLanguage.Count)];
-            room.word = word;
+            room.currentWord = word;
             await Clients.Caller.SendAsync("NewRound", word.content);
             await Clients.Clients(room.audienceDevices).SendAsync("NewRound", word.content);
         }
@@ -101,7 +93,7 @@ namespace DrunkDoodle.Server.Hubs
             Player nextDrawer = getNextDrawer(room);                     
             await Clients.Caller.SendAsync("PrepareRound", nextDrawer.name);
             room.nowDrawing = nextDrawer;
-            await Clients.Clients(room.audienceDevices).SendAsync("EndRound", room.word.content);
+            await Clients.Clients(room.audienceDevices).SendAsync("EndRound", room.currentWord.content);
         }
 
         private Player getNextDrawer(Room room)
@@ -202,25 +194,28 @@ namespace DrunkDoodle.Server.Hubs
         }
     }
 
-    internal class Word
+    public class Word
     {
         public string content { get; set; }
         public string language { get; set; }
     }
 
-    internal class Room
+    public class Room
     {
         public int roomId { get; set; }
-        public List<DrawPoint> drawPoints { get; set; }
         public string artistDevice { get; set; }
-        public List<string> audienceDevices { get; set; }
+        public List<string> audienceDevices { get; set; } = new List<string>();
+
         public Queue<Player> players { get; set; }
-        public Player nowDrawing { get; set; }
-        public int roundNo { get; set; } = 1;
+        public Drawing currentDrawing { get; set; }
+        public RoomRules roomRules { get; set; }
+    }
+
+    public class RoomRules
+    {
         public int drinkAmount { get; set; }
         public string drinkType { get; set; }
         public string wordLanguage { get; set; }
-        public Word word { get; internal set; }
     }
 
     public class Player
@@ -237,7 +232,14 @@ namespace DrunkDoodle.Server.Hubs
         public int teamScore { get; set; }
     }
 
-    internal class DrawPoint
+    public class Drawing
+    {
+        public Word word { get; set; }
+        public Player artist { get; set; }
+        public IList<DrawPoint> drawPoints { get; set; }
+    }
+
+    public class DrawPoint
     {
         public double x { get; set; }
         public double y { get; set; }
