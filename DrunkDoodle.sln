@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28107.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DrunkDoodle.Client.Angular", "DrunkDoodle.Client.Angular\DrunkDoodle.Client.Angular.csproj", "{0E04251D-B4FB-4867-B0B6-6ACF88C22B48}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DrunkDoodle.Server", "DrunkDoodle.Server\DrunkDoodle.Server.csproj", "{888A67AE-2F61-47C3-AA1A-739352D3DB9B}"
 EndProject
 Global
