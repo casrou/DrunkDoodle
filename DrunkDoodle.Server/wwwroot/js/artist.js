@@ -6,11 +6,88 @@ connection.start().catch(function (err) {
     return console.error(err.toString());
 });
 
+// SPLASH SCREEN
+
 $(function () {
     // $("#divSplash").show();
     // $("#divSplash").delay(2000).fadeOut(() => $("#divCreateRoom").show());
     $("#divCreateRoom").show();
 });
+
+// \SPLASH SCREEN
+
+// CREATE ROOM
+
+$("#btnCreateRoom").click(function (event) {
+    var players = getPlayers();
+
+    var drinkAmount = $("#penaltyAmount").val();
+    var drinkType = $("#penaltyType").val();
+    var wordLanguage = $("#wordLanguage").val();
+    var roomRules = {
+        'drinkAmount': drinkAmount,
+        'drinkType': drinkType,
+        'wordLanguage': wordLanguage
+    };
+   
+    if (players.length > 0) {
+        connection.invoke("CreateRoom", players, roomRules).catch(function (err) {
+            return console.error(err.toString());
+        });
+    } else {
+        $("#alertNoPlayers").show();
+    }
+    event.preventDefault();
+});
+
+$("#btnAddPlayerRow").click(function () {
+    $("#teams").append(
+        `<div class="form-row">
+            <div class="col">
+                <input type="text" class="form-control" placeholder="">
+            </div>
+                <div class="col">
+                    <input type="text" class="form-control" placeholder="">
+            </div>
+        </div>`
+    );
+});
+
+function getPlayers() {
+    var inputs = $("#teams > .form-row");
+    var players = [];
+    //for (var i = 0; i < inputs.length; i++) {
+    //    var name = inputs[i].firstElementChild.lastElementChild.value;
+    //    var team = inputs[i].lastElementChild.lastElementChild.value;
+    //    //var player = {};
+    //    //player.name = inputs[i].firstElementChild.lastElementChild.value;
+    //    //player.team = inputs[i].lastElementChild.lastElementChild.value;
+    //    var player = {
+    //        'name': name,
+    //        'team': team
+    //    };
+    //    if (player.name && player.team) //https://stackoverflow.com/a/5515349
+    //        players.push(player);
+    //}
+     players.push({ 'name': 'Casper', 'team': '1' });
+     players.push({ 'name': 'Ida', 'team': '1' });
+     players.push({ 'name': 'Anna', 'team': '2' });
+     players.push({ 'name': 'Marcus', 'team': '2' });
+     players.push({ 'name': 'Jeppe', 'team': '3' });
+     players.push({ 'name': 'Peter', 'team': '3' });
+    //console.log(players);
+    return players;
+}
+
+connection.on("roomCreated", function (roomId) {
+    var labelRoom = $("#roomId");
+    labelRoom.text("Room " + roomId);
+    labelRoom.attr("href", "/Audience?roomId=" + roomId);
+    $("#divPrepareGame").show();
+    $("#divCreateRoom").hide();
+});
+
+// \CREATE ROOM
 
 // PLAYING GAME
 $("#btnStartRound").click(function () {
@@ -72,65 +149,6 @@ connection.on("NowDrinking", function (players, amount, type) {
     $('#drinkModalAmount').text(amount + " " + type);
     $("#drinkModal").modal('show');
 });
-
-// CREATE ROOM
-
-connection.on("roomCreated", function (roomId) {
-    var labelRoom = $("#roomId");
-    labelRoom.text("Room " + roomId);
-    labelRoom.attr("href", "/Audience?roomId=" + roomId);  
-    $("#divPrepareGame").show();
-    $("#divCreateRoom").hide();
-});
-
-$("#btnCreateRoom").click(function (event) {
-    var players = getPlayers();
-    var drinkAmount = $("#penaltyAmount").val();
-    var drinkType = $("#penaltyType").val();
-    var wordLanguage = $("#wordLanguage").val();
-    console.log(drinkAmount + drinkType);
-    if (players.length > 0) {
-        connection.invoke("CreateRoom", players, drinkAmount, drinkType, wordLanguage).catch(function (err) {
-            return console.error(err.toString());
-        });
-    } else {
-        $("#alertNoPlayers").show();
-    }    
-    event.preventDefault();
-});
-
-$("#btnAddPlayerRow").click(function () {
-    $("#teams").append(
-        `<div class="form-row">
-            <div class="col">
-                <input type="text" class="form-control" placeholder="">
-            </div>
-                <div class="col">
-                    <input type="text" class="form-control" placeholder="">
-            </div>
-        </div>`
-    );
-});
-
-function getPlayers() {
-    var inputs = $("#teams > .form-row");
-    var players = [];
-    for (var i = 0; i < inputs.length; i++) {
-       var player = {};
-       player.name = inputs[i].firstElementChild.lastElementChild.value;
-       player.team = inputs[i].lastElementChild.lastElementChild.value;
-       if (player.name && player.team) //https://stackoverflow.com/a/5515349
-           players.push(player);
-    }
-    // players.push({ 'name': 'Casper', 'team': '1' });
-    // players.push({ 'name': 'Ida', 'team': '1' });
-    // players.push({ 'name': 'Anna', 'team': '2' });
-    // players.push({ 'name': 'Marcus', 'team': '2' });
-    // players.push({ 'name': 'Jeppe', 'team': '3' });
-    // players.push({ 'name': 'Peter', 'team': '3' });
-    //console.log(players);
-    return players;
-}
 
 // DRAWING
 var clickX = new Array();
