@@ -1,7 +1,14 @@
 # DrunkDoodle
-Draw and guess based drinking game (C#/JS/SignalR)
+### Draw and guess based drinking game
 
-## Requirements
+With multiple teams and customizable penalty drinking amount. 
+Played in real time on multiple devices (one 'artist' device, multiple 'audience' devices).
+
+`C#, ASP.NET Core, SignalR, Javascript`
+
+![](media/drunkdoodle.gif)
+
+## Game Flow
 - Room preparation
     * Client
         - Add players/teams
