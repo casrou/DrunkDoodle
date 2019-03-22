@@ -1,5 +1,5 @@
 # DrunkDoodle
-Draw and guess based drinking game
+Draw and guess based drinking game (C#/JS/SignalR)
 
 ## Requirements
 - Room preparation
