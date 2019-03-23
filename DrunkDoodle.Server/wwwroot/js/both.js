@@ -1,6 +1,6 @@
 ﻿"use strict";
 
-const COUNTDOWN_TIME = 10;
+const COUNTDOWN_TIME = 15;
 var countdownTimer;
 
 connection.on("NewRound", function (word) {

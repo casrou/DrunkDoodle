@@ -112,6 +112,18 @@ $("#btnAddPlayerRow").click(function () {
     );
 });
 
+$("#teams").on("focusout", ".form-row > .col:last-child", function (e) {
+    var number = Number(e.target.value);
+    if (!e.target.value || !Number.isInteger(number) || number < 0) {
+        alert("Team number has to be a number.");
+        e.target.value = "";
+    }        
+});
+
+//$("#teams > .form-row > .col:last-child").focusout(function (e) {
+//    console.log(e);
+//});
+
 function getPlayers() {
     var inputs = $("#teams > .form-row");
     var players = [];
