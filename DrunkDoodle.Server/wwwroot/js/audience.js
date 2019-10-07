@@ -35,14 +35,18 @@ connection.start()
         return console.error(err.toString());
     })
     .then(function () {
-        var queries = {};
-        $.each(document.location.search.substr(1).split('&'), function (c, q) {
-            var i = q.split('=');
-            queries[i[0].toString()] = i[1].toString();
-        });
-        connection.invoke("JoinAudience", queries["roomId"]).catch(function (err) {
+        //var queries = {};
+        //$.each(document.location.search.substr(1).split('&'), function (c, q) {
+        //    var i = q.split('=');
+        //    queries[i[0].toString()] = i[1].toString();
+        //});
+        var roomId = document.location.pathname.split('/')[1];
+        connection.invoke("JoinAudience", roomId).catch(function (err) {
             return console.error(err.toString());
         });
+        //connection.invoke("JoinAudience", queries["room"]).catch(function (err) {
+        //    return console.error(err.toString());
+        //});
     });
 
 function endRound() {

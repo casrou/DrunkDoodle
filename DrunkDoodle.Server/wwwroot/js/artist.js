@@ -77,8 +77,9 @@ connection.on("NowDrinking", function (players, amount, type) {
 
 connection.on("roomCreated", function (roomId) {
     var labelRoom = $("#roomId");
-    labelRoom.text("Room " + roomId);
-    labelRoom.attr("href", "/Audience?roomId=" + roomId);  
+    //labelRoom.text("Room " + roomId);
+    //labelRoom.attr("href", "/Audience?room=" + roomId);  
+    labelRoom.attr("value", "https://dd.crcn.dk/" + roomId);  
     $("#divPrepareGame").show();
     $("#divCreateRoom").hide();
 });

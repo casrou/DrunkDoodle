@@ -61,7 +61,13 @@
     <div id="divPrepareGame">
         <h4>Prepare game</h4>
         <p>
-            <a class="btn btn-dark" id="roomId"></a>
+            Before starting the game, open this link on <i>audience</i> device(s):            
+        </p>
+        <p style="max-width: 500px;">
+            <input readonly style="width:90%; border-radius: 4px; border: 0px; padding: 5px;" class="" id="roomId" /> <span onclick="copyToClipboard()">📋</span>
+        </p>
+        <p>
+            Then, click this button to start the game as the <i>artist</i> device:
         </p>
         <p>
             <a class="btn btn-success" id="btnStartRound">Start game</a>
